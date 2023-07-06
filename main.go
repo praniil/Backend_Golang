@@ -16,6 +16,10 @@ func main() {
 }
 
 func printHello(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
 	ctx := r.Context()
 	fmt.Println("server: hello handler started")
 	defer fmt.Println("server: hello handler ended")		//defer is used to delay the execution of a function until surrounding function completes
@@ -30,10 +34,6 @@ func printHello(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), internalError)
 	}
 
-	if r.Method != "GET" {
-		w.WriteHeader(http.StatusForbidden)
-		return
-	}
 	// for name, headers := range r.Header{
 	// 	for _, h := range headers{
 	// 		fmt.Fprintf(w, "%v: %v \n", name, h)
@@ -46,6 +46,10 @@ func printHello(w http.ResponseWriter, r *http.Request) {
 }
 
 func printDescription(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
 	ctx := r.Context()
 	fmt.Println("server: description handler started")
 	defer fmt.Println("server: description handler ended")
@@ -59,10 +63,6 @@ func printDescription(w http.ResponseWriter, r *http.Request) {
 		internalError := http.StatusInternalServerError
 		http.Error(w, err.Error(), internalError)
 	}
-	if r.Method != "POST" {
-		w.WriteHeader(http.StatusForbidden)
-		return
+// 	fmt.Println(r.Method)
+// 	fmt.Println("My name is Pranil Parajuli and I am awesome")
 	}
-	fmt.Println(r.Method)
-	fmt.Println("My name is Pranil Parajuli and I am awesome")
-}

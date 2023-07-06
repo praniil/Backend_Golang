@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 )
 
 func main() {
@@ -15,8 +16,20 @@ func main() {
 }
 
 func printHello(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	fmt.Println("server: hello handler started")
+	defer fmt.Println("server: hello handler ended")		//defer is used to delay the execution of a function until surrounding function completes
 
-	
+	select {
+	case <-time.After(5 * time.Second):
+		fmt.Fprintf(w, "hello sir\n")
+	case <-ctx.Done():
+		err := ctx.Err()
+		fmt.Println("server:", err)
+		internalError := http.StatusInternalServerError
+		http.Error(w, err.Error(), internalError)
+	}
+
 	if r.Method != "GET" {
 		w.WriteHeader(http.StatusForbidden)
 		return
@@ -27,8 +40,8 @@ func printHello(w http.ResponseWriter, r *http.Request) {
 	// 	}
 	// }
 
-	fmt.Println(r.Method)
-	fmt.Println("Hello ")
+	// fmt.Println(r.Method)
+	// fmt.Println("Hello ")
 
 }
 

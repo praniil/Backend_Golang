@@ -46,6 +46,19 @@ func printHello(w http.ResponseWriter, r *http.Request) {
 }
 
 func printDescription(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	fmt.Println("server: description handler started")
+	defer fmt.Println("server: description handler ended")
+
+	select{
+	case <- time.After(10* time.Second):
+		fmt.Fprintf(w, "my description")
+	case <- ctx.Done():
+		err:= ctx.Err()
+		fmt.Println("server:", err)
+		internalError := http.StatusInternalServerError
+		http.Error(w, err.Error(), internalError)
+	}
 	if r.Method != "POST" {
 		w.WriteHeader(http.StatusForbidden)
 		return

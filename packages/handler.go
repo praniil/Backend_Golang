@@ -1,10 +1,13 @@
 package packages
 
 import (
+	"backend/database"
 	"context"
 	"fmt"
 	"net/http"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 func PrintHello(w http.ResponseWriter, r *http.Request) {
@@ -26,34 +29,39 @@ func PrintHello(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), internalError)
 	}
 
-	// for name, headers := range r.Header{
-	// 	for _, h := range headers{
-	// 		fmt.Fprintf(w, "%v: %v \n", name, h)
-	// 	}
-	// }
-
-	// fmt.Println(r.Method)
-	// fmt.Println("Hello ")
-
 }
+
+type User struct {
+	gorm.Model
+	Name    string
+	Surname string
+}
+
 func PrintDescription(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
+
+	db := database.Database_connection()
+
 	ctx := r.Context()
 	fmt.Println("server: description handler started")
 	defer fmt.Println("server: description handler ended")
 
 	select {
-	case <-time.After(10 * time.Second):
-		fmt.Fprintf(w, "my description")
+	case <-time.After(1 * time.Second):
+		db.AutoMigrate(&User{})
+		db.Create(&User{
+			Name:    "pranil",
+			Surname: "parajuli",
+		})
 	case <-ctx.Done():
 		err := ctx.Err()
 		fmt.Println("server:", err)
 		internalError := http.StatusInternalServerError
 		http.Error(w, err.Error(), internalError)
-	} 
+	}
 	// 	fmt.Println(r.Method)
 	// 	fmt.Println("My name is Pranil Parajuli and I am awesome")
 }
